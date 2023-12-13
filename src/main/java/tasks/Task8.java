@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,6 +24,9 @@ P.P.S Здесь ваши правки желательно прокоммент
 public class Task8 {
 
   //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
+  // NOTE: Изменять приходящий список persons (как в исходном коде) - по-моему, не очень практика))
+  // NOTE: Что касается первой персоны, по смыслу мы её не удаляем, а просто игнорируем.
+  // NOTE: Поэтому remove не нужен, а стримовский skip тут как раз хорошо ложится.
   public List<String> getNames(List<Person> persons) {
     return persons.stream()
             .skip(1)
@@ -31,6 +35,8 @@ public class Task8 {
   }
 
   //ну и различные имена тоже хочется
+  // NOTE: исходный код - антипример, который даже на лекции был. Если нам просто нужно создать сет,
+  // NOTE: банально используем имеющийся конструктор.
   public Set<String> getDifferentNames(List<Person> persons) {
     return new HashSet<>(getNames(persons));
   }
@@ -46,21 +52,26 @@ public class Task8 {
   }
 
   // словарь id персоны -> ее имя
+  // NOTE: Исходный код более громоздкий, на стримах более читаемо и оптимизировано.
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
     return persons.stream()
             .collect(Collectors.toMap(Person::getId, this::convertPersonToString, (n1, n2) -> n1));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
+  // NOTE: код на стримах, по сравнению с исходным, более лаконичный и читаемый.
+  // NOTE: а также работает за O(n) за счёт сета (хотя моя прошлая версия работала за O(n^2), поправил).
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
+    Set<Person> persons2set = new HashSet<>(persons2);
     return persons1.stream()
-            .anyMatch(persons2::contains);
+            .anyMatch(persons2set::contains);
   }
 
   // NOTE: комментарий "..." убран. и так понятно, что делает метод :)
   public long countEven(Stream<Integer> numbers) {
     // NOTE: тк у стримов есть встроенный метод-счётчик, переменная count для подсчёта не нужна
-    // NOTE: (уж тем более нет смысла делать это полем целого класса, когда оно используется только в одном методе)
+    // NOTE: (уж тем более нет смысла делать это полем целого класса, когда оно используется только в одном методе).
+    // NOTE: также исходный код падал на параллельных стримах (как раз за счёт классового count).
     return numbers
             .filter(num -> num % 2 == 0)
             .count();
